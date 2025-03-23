@@ -35,4 +35,25 @@ const initDB = async () => {
   }
 };
 
-module.exports = { pool, initDB }; 
+// Fonction pour exécuter la migration
+const runMigration = async () => {
+  try {
+    const client = await pool.connect();
+    
+    // Lire le script SQL de migration
+    const migrationSQL = fs.readFileSync(path.join(__dirname, 'migration.sql'), 'utf8');
+    
+    // Exécuter le script
+    await client.query(migrationSQL);
+    
+    console.log('Migration exécutée avec succès');
+    client.release();
+    
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la migration:', error);
+    return false;
+  }
+};
+
+module.exports = { pool, initDB, runMigration }; 

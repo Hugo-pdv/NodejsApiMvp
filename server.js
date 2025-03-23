@@ -5,7 +5,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 // Importation des modules de base de données
-const { pool, initDB } = require('./db/db');
+const { pool, initDB, runMigration } = require('./db/db');
 
 const app = express();
 
@@ -15,6 +15,9 @@ const apiRoutes = require('./routes/api');
 // Utilisation des middlewares
 app.use(cors());
 app.use(bodyParser.json());
+
+// Ajout de middleware pour servir les fichiers statiques depuis le dossier public
+app.use(express.static('public'));
 
 // Utilisation des routes
 app.use('/api', apiRoutes);
@@ -26,6 +29,9 @@ const startServer = async () => {
   try {
     // Initialiser la base de données
     await initDB();
+    
+    // Exécuter la migration pour augmenter la taille du champ image
+    await runMigration();
     
     // Test de connexion
     const client = await pool.connect();
